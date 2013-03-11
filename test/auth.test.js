@@ -26,11 +26,20 @@ test("(setup server)", function(t) {
   });
 });
 
+test("/auth/info before login works", function(t) {
+  req(resolve('/auth/info'), function(err, response, body) {
+    t.equal(response.statusCode, 200);
+    t.same(JSON.parse(body), {screenName: null, userId: null});
+    t.end();
+  });
+});
+
 test("/auth/login works", function(t) {
   fakeOauth.getOAuthRequestToken = function(cb) {
     cb(null, "reqtoken", "reqsecret");
   };
   req(resolve('/auth/login'), function(err, response, body) {
+    if (err) throw err;
     t.equal(response.statusCode, 302);
     t.equal(response.headers['location'],
             'http://foo.org/auth?oauth_token=reqtoken&force_login=true');
@@ -43,11 +52,20 @@ test("/auth/callback works", function(t) {
     t.equal(token, "reqtoken");
     t.equal(secret, "reqsecret");
     t.equal(verifier, "v2");
-    cb(null, "atoken", "asecret", {user_id: 1, screenName: 'hi'});
+    cb(null, "atoken", "asecret", {user_id: 12, screen_name: 'hi'});
   };
   req(resolve('/auth/callback?oauth_verifier=v2'), function(err, res, body) {
     t.equal(res.statusCode, 200);
     t.equal(body, '<script>window.close();</script>');
+    t.end();
+  });
+});
+
+test("/auth/info after login works", function(t) {
+  req(resolve('/auth/info'), function(err, response, body) {
+    if (err) throw err;
+    t.equal(response.statusCode, 200);
+    t.same(JSON.parse(body), {screenName: 'hi', userId: 12});
     t.end();
   });
 });
