@@ -1,7 +1,8 @@
 var url = require('url');
-var querystring = require('querystring');
 var express = require('express');
 var OAuth = require('oauth').OAuth;
+
+var auth = require('./controllers/auth');
 
 var createApp = module.exports = function createApp(options) {
   var app = express();
@@ -16,50 +17,10 @@ var createApp = module.exports = function createApp(options) {
   app.use(express.cookieParser());
   app.use(express.cookieSession({secret: options.cookieSecret}));
   app.use(express.static(__dirname + '/static'));
-  app.post('/auth/logout', function(req, res, next) {
-    req.session = null;
-    return res.send(204);
-  });
-  app.get('/auth/login', function(req, res, next) {
-    oa.getOAuthRequestToken(function(err, token, secret, results) {
-      if (err) return next(err);
-      req.session = {requestToken: token, requestSecret: secret};
-      return res.redirect('https://twitter.com/oauth/authenticate?' +
-                          querystring.stringify({
-                            oauth_token: token,
-                            force_login: "true"
-                          }));
-    });
-  });
-  app.get('/auth/callback', function(req, res, next) {
-    if (!(req.session.requestToken && req.session.requestSecret))
-      return next(new Error("callback called, but no info in session"));
-    oa.getOAuthAccessToken(
-      req.session.requestToken,
-      req.session.requestSecret,
-      req.query.oauth_verifier,
-      function(err, accessToken, accessSecret, results) {
-        if (err) return next(err);
-        req.session = {
-          accessToken: accessToken,
-          accessSecret: accessSecret,
-          userId: results.user_id,
-          screenName: results.screen_name
-        };
-        return res.send("<script>window.close();</script>");
-      }
-    );
-  });
-  app.get('/auth/info', function(req, res, next) {
-    var info = {screenName: null, userId: null};
-
-    if (req.session.screenName) {
-      info.screenName = req.session.screenName;
-      info.userId = req.session.userId;
-    }
-
-    return res.send(info);
-  });
+  app.post('/auth/logout', auth.logout);
+  app.get('/auth/login', auth.login(oa));
+  app.get('/auth/callback', auth.callback(oa));
+  app.get('/auth/info', auth.info);
   app.use(function(err, req, res, next) {
     console.error(err);
     return res.send(500, "Sorry, an error occurred.");
