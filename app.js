@@ -1,25 +1,22 @@
 var url = require('url');
 var express = require('express');
-var OAuth = require('oauth').OAuth;
 
-var auth = require('./controllers/auth');
+var Auth = require('./controllers/auth').Auth;
 
 var createApp = module.exports = function createApp(options) {
   var app = express();
-  var oa = new OAuth("https://api.twitter.com/oauth/request_token",
-                     "https://api.twitter.com/oauth/access_token",
-                     options.consumerKey,
-                     options.consumerSecret,
-                     "1.0A",
-                     url.resolve(options.baseUrl, '/auth/callback'),
-                     "HMAC-SHA1");
+  var auth = new Auth({
+    consumerKey: options.consumerKey,
+    consumerSecret: options.consumerSecret,
+    callbackUrl: url.resolve(options.baseUrl, '/auth/callback')
+  });
 
   app.use(express.cookieParser());
   app.use(express.cookieSession({secret: options.cookieSecret}));
   app.use(express.static(__dirname + '/static'));
   app.post('/auth/logout', auth.logout);
-  app.get('/auth/login', auth.login(oa));
-  app.get('/auth/callback', auth.callback(oa));
+  app.get('/auth/login', auth.login);
+  app.get('/auth/callback', auth.callback);
   app.get('/auth/info', auth.info);
   app.use(function(err, req, res, next) {
     console.error(err);
