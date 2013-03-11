@@ -1,5 +1,6 @@
 var url = require('url');
 var express = require('express');
+var mongoose = require('mongoose');
 
 var Auth = require('./controllers/auth').Auth;
 
@@ -41,6 +42,7 @@ function main() {
     baseUrl: env('BASE_URL')
   });
 
+  mongoose.connect(env('MONGODB_URL'));
   app.listen(port, function() {
     console.log("listening on port " + port);
   });
