@@ -7,6 +7,8 @@ var Auth = require('./controllers/auth').Auth;
 var createApp = module.exports = function createApp(options) {
   var app = express();
   var auth = new Auth({
+    oauth: options.oauth,
+    authenticateUrl: options.authenticateUrl,
     consumerKey: options.consumerKey,
     consumerSecret: options.consumerSecret,
     callbackUrl: url.resolve(options.baseUrl, '/auth/callback')

@@ -3,13 +3,17 @@ var OAuth = require('oauth').OAuth;
 
 exports.Auth = function Auth(options) {
   var self = {};
-  var oauth = new OAuth("https://api.twitter.com/oauth/request_token",
-                        "https://api.twitter.com/oauth/access_token",
-                        options.consumerKey,
-                        options.consumerSecret,
-                        "1.0A",
-                        options.callbackUrl,
-                        "HMAC-SHA1");
+  var authenticateUrl = options.authenticateUrl ||
+                        'https://twitter.com/oauth/authenticate';
+  var oauth = options.oauth || new OAuth(
+    "https://api.twitter.com/oauth/request_token",
+    "https://api.twitter.com/oauth/access_token",
+    options.consumerKey,
+    options.consumerSecret,
+    "1.0A",
+    options.callbackUrl,
+    "HMAC-SHA1"
+  );
 
   self.logout = function logout(req, res, next) {
     req.session = null;
@@ -20,7 +24,7 @@ exports.Auth = function Auth(options) {
     oauth.getOAuthRequestToken(function(err, token, secret, results) {
       if (err) return next(err);
       req.session = {requestToken: token, requestSecret: secret};
-      return res.redirect('https://twitter.com/oauth/authenticate?' +
+      return res.redirect(authenticateUrl + '?' +
                           querystring.stringify({
                             oauth_token: token,
                             force_login: "true"
