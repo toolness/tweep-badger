@@ -13,19 +13,17 @@ var createApp = module.exports = function createApp(options) {
                      url.resolve(options.baseUrl, '/auth/callback'),
                      "HMAC-SHA1");
 
-  app.use(express.cookieParser(options.cookieSecret));
+  app.use(express.cookieParser());
+  app.use(express.cookieSession({secret: options.cookieSecret}));
   app.use(express.static(__dirname + '/static'));
   app.post('/auth/logout', function(req, res, next) {
-    res.clearCookie("oauth");
+    req.session = null;
     return res.send(204);
   });
   app.get('/auth/login', function(req, res, next) {
     oa.getOAuthRequestToken(function(err, token, secret, results) {
       if (err) return next(err);
-      res.cookie("oauth", {
-        requestToken: token,
-        requestSecret: secret
-      }, {signed: true});
+      req.session = {requestToken: token, requestSecret: secret};
       return res.redirect('https://twitter.com/oauth/authenticate?' +
                           querystring.stringify({
                             oauth_token: token,
@@ -34,32 +32,30 @@ var createApp = module.exports = function createApp(options) {
     });
   });
   app.get('/auth/callback', function(req, res, next) {
-    var oauth = req.signedCookies.oauth;
-    if (!(oauth && oauth.requestToken && oauth.requestSecret))
-      return next(new Error("callback called, but no info in cookie"));
+    if (!(req.session.requestToken && req.session.requestSecret))
+      return next(new Error("callback called, but no info in session"));
     oa.getOAuthAccessToken(
-      oauth.requestToken,
-      oauth.requestSecret,
+      req.session.requestToken,
+      req.session.requestSecret,
       req.query.oauth_verifier,
       function(err, accessToken, accessSecret, results) {
         if (err) return next(err);
-        res.cookie("oauth", {
+        req.session = {
           accessToken: accessToken,
           accessSecret: accessSecret,
           userId: results.user_id,
           screenName: results.screen_name
-        }, {signed: true});
+        };
         return res.send("<script>window.close();</script>");
       }
     );
   });
   app.get('/auth/info', function(req, res, next) {
-    var oauth = req.signedCookies.oauth || {};
     var info = {screenName: null, userId: null};
 
-    if (oauth.screenName) {
-      info.screenName = oauth.screenName;
-      info.userId = oauth.userId;
+    if (req.session.screenName) {
+      info.screenName = req.session.screenName;
+      info.userId = req.session.userId;
     }
 
     return res.send(info);
