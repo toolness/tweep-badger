@@ -44,7 +44,7 @@ exports.Auth = function Auth(options) {
         req.session = {
           accessToken: accessToken,
           accessSecret: accessSecret,
-          userId: results.user_id,
+          userId: parseInt(results.user_id),
           screenName: results.screen_name
         };
         return res.send("<script>window.close();</script>");

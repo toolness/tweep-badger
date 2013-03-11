@@ -52,7 +52,7 @@ test("/auth/callback works", function(t) {
     t.equal(token, "reqtoken");
     t.equal(secret, "reqsecret");
     t.equal(verifier, "v2");
-    cb(null, "atoken", "asecret", {user_id: 12, screen_name: 'hi'});
+    cb(null, "atoken", "asecret", {user_id: '12', screen_name: 'hi'});
   };
   req(resolve('/auth/callback?oauth_verifier=v2'), function(err, res, body) {
     t.equal(res.statusCode, 200);
@@ -64,8 +64,10 @@ test("/auth/callback works", function(t) {
 test("/auth/info after login works", function(t) {
   req(resolve('/auth/info'), function(err, response, body) {
     if (err) throw err;
+    body = JSON.parse(body);
     t.equal(response.statusCode, 200);
-    t.same(JSON.parse(body), {screenName: 'hi', userId: 12});
+    t.equal(typeof(body.userId), 'number');
+    t.same(body, {screenName: 'hi', userId: 12});
     t.end();
   });
 });
