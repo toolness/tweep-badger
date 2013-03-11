@@ -70,6 +70,15 @@ test("/auth/info after login works", function(t) {
   });
 });
 
+test("/auth/logout works", function(t) {
+  req.post(resolve('/auth/logout'), function(err, response, body) {
+    if (err) throw err;
+    t.equal(response.statusCode, 204);
+    t.ok(response.headers['set-cookie'][0].match(/connect\.sess=;/));
+    t.end();
+  });
+});
+
 test("(teardown server)", function(t) {
   server.close(function(err) {
     if (err) throw err;
