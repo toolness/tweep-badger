@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 
 var env = require('./env');
 var Auth = require('./controllers/auth').Auth;
+var badge = require('./controllers/badge');
 
 var createApp = module.exports = function createApp(options) {
   var app = express();
@@ -15,13 +16,17 @@ var createApp = module.exports = function createApp(options) {
     callbackUrl: url.resolve(options.baseUrl, '/auth/callback')
   });
 
+  app.use(express.bodyParser());
   app.use(express.cookieParser());
-  app.use(express.cookieSession({secret: options.cookieSecret}));
+  app.use(options.sessionMiddleware ||
+          express.cookieSession({secret: options.cookieSecret}));
   app.use(express.static(__dirname + '/static'));
   app.post('/auth/logout', auth.logout);
   app.get('/auth/login', auth.login);
   app.get('/auth/callback', auth.callback);
   app.get('/auth/info', auth.info);
+  app.post('/badge', badge.create);
+  app.get('/badge/:id', badge.getById);
   app.use(function(err, req, res, next) {
     console.error(err);
     return res.send(500, "Sorry, an error occurred.");

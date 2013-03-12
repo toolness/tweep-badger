@@ -12,6 +12,11 @@ var schema = mongoose.Schema({
 
 var Badge = exports.Badge = mongoose.model('Badge', schema);
 
+Badge.schema.path('sender').required(true);
+Badge.schema.path('recipient').required(true);
+Badge.schema.path('title').required(true);
+Badge.schema.path('image_url').required(true);
+
 Badge.schema.path('image_url').validate(function(value) {
-  return /^https?:$/.test(url.parse(value).protocol);
+  return /^https?:$/.test(url.parse(value || '').protocol);
 }, 'Protocol must be http or https');
