@@ -31,6 +31,13 @@ $(window).ready(function() {
     console.log("AUTHINFO CHANGE", this.attributes);
   });
 
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (settings.type == "POST" && !settings.crossDomain)
+        xhr.setRequestHeader('X-CSRF-Token', auth.get('_csrf'));
+    }
+  });
+
   $("#login").click(auth.login.bind(auth));
   $("#logout").click(auth.logout.bind(auth));
 });
