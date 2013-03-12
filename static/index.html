@@ -1,23 +1,57 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Tweep Badger</title>
-<p>This is Tweep Badger.</p>
-<button id="logout">Logout</button>
-<button id="login">Login</button>
+<link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.css">
+<style>
+body.loading {
+  display: none;
+}
+
+body:not(.logged-in) .logged-in-only {
+  display: none;
+}
+
+body.logged-in .logged-out-only {
+  display: none;
+}
+
+img.inline {
+  height: 1em;
+}
+</style>
+<body class="loading">
+<div class="container-fluid">
+  <p>This is Tweep Badger.</p>
+  <div class="logged-in-only">
+    <p>Currently logged in as <img class="js-user-avatar inline"> 
+      <span class="js-user-name"></span>.</p>
+    <button class="js-logout btn">Logout</button>
+  </div>
+  <button class="js-login btn btn-primary logged-out-only">Login</button>
+</div>
 <script src="/js/require-config.js"></script>
 <script src="/vendor/require.js"></script>
 <script>
 require(["jquery", "auth"], function($, Auth) {
+  var BASE_AVATAR_URL = "http://twitter.com/api/users/profile_image/"
+
   $(window).ready(function() {
     var auth = new Auth();
 
     auth.fetch();
     auth.on("change", function() {
-      console.log("AUTHINFO CHANGE", this.attributes);
+      $(document.body).removeClass("loading")
+        .toggleClass("logged-in", !!this.attributes.screenName);
+      if (this.attributes.screenName) {
+        $("img.js-user-avatar")
+          .attr("src", BASE_AVATAR_URL + this.get('screenName'));
+        $(".js-user-name").text(this.get('screenName'));
+      }
     });
 
-    $("#login").click(auth.login.bind(auth));
-    $("#logout").click(auth.logout.bind(auth));
+    $(".js-login").click(auth.login.bind(auth));
+    $(".js-logout").click(auth.logout.bind(auth));
   });
 });
 </script>
+</body>
