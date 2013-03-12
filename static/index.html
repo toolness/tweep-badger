@@ -4,41 +4,20 @@
 <p>Hi!</p>
 <button id="logout">Logout</button>
 <button id="login">Login</button>
-<script src="/vendor/jquery.js"></script>
-<script src="/vendor/underscore.js"></script>
-<script src="/vendor/backbone.js"></script>
+<script src="/js/require-config.js"></script>
+<script src="/vendor/require.js"></script>
 <script>
-var Auth = Backbone.Model.extend({
-  url: function() { return "/auth/info"; },
-  login: function() {
-    var fetch = this.fetch.bind(this);
-    var popup = window.open("/auth/login", undefined, "width=640,height=480");
-    var checkIfClosed = window.setInterval(function() {
-      if (popup.closed) {
-        window.clearInterval(checkIfClosed);
-        fetch();
-      }
-    }, 100);
-  },
-  logout: function() { $.post("/auth/logout", this.fetch.bind(this)); }
-});
+require(["jquery", "auth"], function($, Auth) {
+  $(window).ready(function() {
+    var auth = new Auth();
 
-$(window).ready(function() {
-  var auth = new Auth();
+    auth.fetch();
+    auth.on("change", function() {
+      console.log("AUTHINFO CHANGE", this.attributes);
+    });
 
-  auth.fetch();
-  auth.on("change", function() {
-    console.log("AUTHINFO CHANGE", this.attributes);
+    $("#login").click(auth.login.bind(auth));
+    $("#logout").click(auth.logout.bind(auth));
   });
-
-  $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-      if (settings.type == "POST" && !settings.crossDomain)
-        xhr.setRequestHeader('X-CSRF-Token', auth.get('_csrf'));
-    }
-  });
-
-  $("#login").click(auth.login.bind(auth));
-  $("#logout").click(auth.logout.bind(auth));
 });
 </script>
