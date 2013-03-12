@@ -1,7 +1,7 @@
 var testing = require('./index');
 
 var fakeSession = {};
-var badgeUrl;
+var badgeUrl, badgeId;
 
 function login(screenName) { fakeSession.screenName = screenName; }
 function logout() { fakeSession.screenName = null; }
@@ -61,6 +61,7 @@ testing.dbTest("/badge", function(t) {
         t.equal(typeof(body.id), "string");
         t.ok(body.url && body.url.match(/\/badge\/.+$/));
         badgeUrl = body.url;
+        badgeId = body.id;
         t.end();
       });
     });
@@ -71,6 +72,7 @@ testing.dbTest("/badge", function(t) {
         if (err) throw err;
         t.equal(response.statusCode, 200);
         body = JSON.parse(body);
+        t.equal(body.id, badgeId);
         t.equal(body.sender, 'hi');
         t.equal(body.recipient, 'foo');
         t.equal(body.title, 'awesome person');

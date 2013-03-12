@@ -37,6 +37,7 @@ exports.getById = function(req, res, next) {
     if (!badges.length) return res.send(404);
     badge = badges[0];
     res.send({
+      id: badge._id,
       sender: badge.sender,
       recipient: badge.recipient,
       title: badge.title,
