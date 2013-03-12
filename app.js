@@ -2,6 +2,7 @@ var url = require('url');
 var express = require('express');
 var mongoose = require('mongoose');
 
+var env = require('./env');
 var Auth = require('./controllers/auth').Auth;
 
 var createApp = module.exports = function createApp(options) {
@@ -29,14 +30,8 @@ var createApp = module.exports = function createApp(options) {
   return app;
 };
 
-function env(name) {
-  if (!process.env[name])
-    throw new Error(name + " environment variable is not defined");
-  return process.env[name];
-}
-
 function main() {
-  var port = parseInt(process.env['PORT']);
+  var port = parseInt(env('PORT', '3000'));
   var app = createApp({
     cookieSecret: env('COOKIE_SECRET'),
     consumerKey: env('TWITTER_CONSUMER_KEY'),
