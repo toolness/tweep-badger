@@ -1,6 +1,7 @@
 var appTest = require('./index').appTest;
 
 var fakeOauth = {};
+var csrf;
 
 appTest("/auth", {
   appOptions: {
@@ -12,7 +13,11 @@ appTest("/auth", {
   t.test("/auth/info before login works", function(t) {
     a.request(a.url('/auth/info'), function(err, response, body) {
       t.equal(response.statusCode, 200);
-      t.same(JSON.parse(body), {screenName: null, userId: null});
+      body = JSON.parse(body);
+      t.equal(body.screenName, null);
+      t.equal(body.userId, null);
+      t.equal(typeof(body._csrf), "string");
+      csrf = body._csrf;
       t.end();
     });
   });
@@ -50,17 +55,18 @@ appTest("/auth", {
       if (err) throw err;
       body = JSON.parse(body);
       t.equal(response.statusCode, 200);
-      t.equal(typeof(body.userId), 'number');
-      t.same(body, {screenName: 'hi', userId: 12});
+      t.equal(body.userId, 12);
+      t.equal(body.screenName, 'hi');
       t.end();
     });
   });
 
   t.test("/auth/logout works", function(t) {
-    a.request.post(a.url('/auth/logout'), function(err, response, body) {
+    a.request.post(a.url('/auth/logout'), {
+      json: {_csrf: csrf}
+    }, function(err, response, body) {
       if (err) throw err;
       t.equal(response.statusCode, 204);
-      t.ok(response.headers['set-cookie'][0].match(/connect\.sess=;/));
       t.end();
     });
   });

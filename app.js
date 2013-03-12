@@ -20,6 +20,7 @@ var createApp = module.exports = function createApp(options) {
   app.use(express.cookieParser());
   app.use(options.sessionMiddleware ||
           express.cookieSession({secret: options.cookieSecret}));
+  app.use(express.csrf());
   app.use(express.static(__dirname + '/static'));
   app.post('/auth/logout', auth.logout);
   app.get('/auth/login', auth.login);
@@ -28,6 +29,8 @@ var createApp = module.exports = function createApp(options) {
   app.post('/badge', badge.create);
   app.get('/badge/:id', badge.getById);
   app.use(function(err, req, res, next) {
+    if (err.status)
+      return res.send(err.status);
     console.error(err);
     return res.send(500, "Sorry, an error occurred.");
   });

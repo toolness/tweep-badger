@@ -25,9 +25,20 @@ testing.dbTest("/badge", function(t) {
       });
     });
 
-    t.test("POST /badge fails when no body present", function(t) {
+    t.test("POST /badge fails w/ no csrf", function(t) {
       login('hi');
       a.request.post(a.url("/badge"), function(err, response, body) {
+        if (err) throw err;
+        t.equal(response.statusCode, 403);
+        t.end();
+      });
+    });
+
+    t.test("POST /badge fails when no body present", function(t) {
+      login('hi');
+      a.request.post(a.url("/badge"), {
+        json: {_csrf: fakeSession._csrf}
+      }, function(err, response, body) {
         if (err) throw err;
         t.equal(response.statusCode, 400);
         t.end();
@@ -38,6 +49,7 @@ testing.dbTest("/badge", function(t) {
       login('hi');
       a.request.post(a.url("/badge"), {
         json: {
+          _csrf: fakeSession._csrf,
           recipient: 'foo',
           title: 'awesome person',
           description: 'person is cool',
@@ -47,7 +59,7 @@ testing.dbTest("/badge", function(t) {
         if (err) throw err;
         t.equal(response.statusCode, 201);
         t.equal(typeof(body.id), "string");
-        t.ok(body.url.match(/\/badge\/.+$/));
+        t.ok(body.url && body.url.match(/\/badge\/.+$/));
         badgeUrl = body.url;
         t.end();
       });
@@ -74,6 +86,7 @@ testing.dbTest("/badge", function(t) {
       a.request.post({
         url: a.url("/badge"),
         json: {
+          _csrf: fakeSession._csrf,
           recipient: 'foo',
           title: 'awesome person',
           description: 'persion is cool',

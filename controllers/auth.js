@@ -16,14 +16,16 @@ exports.Auth = function Auth(options) {
   );
 
   self.logout = function logout(req, res, next) {
-    req.session = null;
+    req.session.screenName = null;
+    req.session.userId = null;
     return res.send(204);
   };
 
   self.login = function login(req, res, next) {
     oauth.getOAuthRequestToken(function(err, token, secret, results) {
       if (err) return next(err);
-      req.session = {requestToken: token, requestSecret: secret};
+      req.session.requestToken = token;
+      req.session.requestSecret = secret;
       return res.redirect(authenticateUrl + '?' +
                           querystring.stringify({
                             oauth_token: token,
@@ -41,19 +43,19 @@ exports.Auth = function Auth(options) {
       req.query.oauth_verifier,
       function(err, accessToken, accessSecret, results) {
         if (err) return next(err);
-        req.session = {
-          accessToken: accessToken,
-          accessSecret: accessSecret,
-          userId: parseInt(results.user_id),
-          screenName: results.screen_name
-        };
+        delete req.session.requestToken;
+        delete req.session.requestSecret;
+        req.session.accessToken = accessToken;
+        req.session.accessSecret = accessSecret;
+        req.session.userId = parseInt(results.user_id);
+        req.session.screenName = results.screen_name;
         return res.send("<script>window.close();</script>");
       }
     );
   };
 
   self.info = function(req, res, next) {
-    var info = {screenName: null, userId: null};
+    var info = {screenName: null, userId: null, _csrf: req.session._csrf};
 
     if (req.session.screenName) {
       info.screenName = req.session.screenName;
