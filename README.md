@@ -12,6 +12,7 @@ You'll need node and mongoDB.
 ## Quick Start
 
 1. Run `npm install`.
-2. Run `cp .env.sample .env`.
-3. Edit `.env` to taste.
-4. Run `node app.js`, then browse to http://localhost:3000/.
+2. Run `npm test`.
+3. Run `cp .env.sample .env`.
+4. Edit `.env` to taste.
+5. Run `node app.js`, then browse to http://localhost:3000/.
