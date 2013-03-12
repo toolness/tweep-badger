@@ -39,7 +39,7 @@ var createApp = module.exports = function createApp(options) {
 };
 
 function main() {
-  var port = parseInt(env('PORT', '3000'));
+  var port = parseInt(env('PORT'));
   var app = createApp({
     cookieSecret: env('COOKIE_SECRET'),
     consumerKey: env('TWITTER_CONSUMER_KEY'),

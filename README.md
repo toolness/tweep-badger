@@ -1,82 +1,17 @@
-## Model
+This is an experimental app that can be used to issue Open Badges
+from one Twitter user to another.
 
-Dates are in ISO 8601.
+## Mockups
 
-* **sender** - Twitter name of sender.
-* **recipient** - Twitter name of recipient.
-* **issue_date** - Date sender issued the badge.
-* **claim_date** - Date recipient claimed the badge, or `null` if unclaimed.
-* **title** - Title of badge.
-* **description** - Description of badge (markdown).
-* **image_url** - Absolute image URL of badge.
-* **assertion_url** - Assertion URL of badge, or `null` if not generated.
+<a href="http://www.flickr.com/photos/jessicaklein/8544039631/"><img src="http://farm9.staticflickr.com/8092/8544039631_14bde7e190_z.jpg"></a>
 
-## API
+## Prerequisites
 
-### Posting a badge
+You'll need node and mongoDB.
 
-Request:
+## Quick Start
 
-```
-POST /badge HTTP/1.1
-Content-Type: application/json
-
-{
-  "access_token": "awepognapewon32opnfe",
-  "recipient": "toolness",
-  "title": "Github Rockstar",
-  "description": "This person is [cool](http://foo.org/).",
-  "image_url": "http://placekitten.com/90/90",
-}
-```
-
-Response:
-
-```
-HTTP/1.1 201 Created
-
-{
-  "url": "/badge/15"
-}
-```
-
-### Changing a badge
-
-```
-PUT /badge/15 HTTP/1.1
-Content-Type: application/json
-
-{
-  "access_token": "awepognapewon32opnfe",
-  "recipient": "toolness",
-  "title": "Github Rockstar",
-  "description": "This person is [cool](http://foo.org/).",
-  "image_url": "http://placekitten.com/90/90",
-}
-```
-
-### Requesting a badge
-
-Request:
-
-```
-GET /badge/15 HTTP/1.1
-```
-
-Response:
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "sender": "iamjessklein",
-  "recipient": "toolness",
-  "issue_date": "2013-03-10T17:38:02.855Z",
-  "claim_date": null,
-  "title": "Github Rockstar",
-  "description": "This person is [cool](http://foo.org/).",
-  "image_url": "http://placekitten.com/90/90",
-  "assertion_url": null
-}
-```
+1. Run `npm install`.
+2. Run `cp .env.sample .env`.
+3. Edit `.env` to taste.
+4. Run `node app.js`, then browse to http://localhost:3000/.
