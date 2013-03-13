@@ -31,6 +31,7 @@ var createApp = module.exports = function createApp(options) {
   app.post('/badge', badge.create);
   app.get('/badge/:badgeId', badge.show);
   app.put('/badge/:badgeId', badge.change);
+  app.delete('/badge/:badgeId', badge.remove);
   app.use(function(err, req, res, next) {
     if (err.status)
       return res.send(err.status);

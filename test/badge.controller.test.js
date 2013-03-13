@@ -183,6 +183,36 @@ testing.dbTest("/badge", function(t) {
       });
     });
 
+    t.test("DELETE /badge/:id fails when not owner", function(t) {
+      login('blarg');
+      a.request.del(a.url(badgeUrl), {
+        form: {_csrf: fakeSession._csrf}
+      }, function(err, response) {
+        if (err) throw err;
+        t.equal(response.statusCode, 403);
+        t.end();
+      });
+    });
+
+    t.test("DELETE /badge/:id works", function(t) {
+      login('hi');
+      a.request.del(a.url(badgeUrl), {
+        form: {_csrf: fakeSession._csrf}
+      }, function(err, response) {
+        if (err) throw err;
+        t.equal(response.statusCode, 204);
+        t.test("GET /badge/:id returns 404 after deletion", function(t) {
+          logout();
+          a.request(a.url(badgeUrl), function(err, response) {
+            if (err) throw err;
+            t.equal(response.statusCode, 404);
+            t.end();
+          });
+        });
+        t.end();
+      });
+    });
+
     t.end();
   });
 });

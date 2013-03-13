@@ -62,6 +62,13 @@ exports.change = [ensureLoggedIn, ensureBadgeOwner, function(req, res, next) {
   });
 }];
 
+exports.remove = [ensureLoggedIn, ensureBadgeOwner, function(req, res, next) {
+  Badge.remove({_id: req.badge._id}, function(err) {
+    if (err) return next(err);
+    return res.send(204);
+  });
+}];
+
 exports.getById = function(req, res, next, id) {
   Badge.find({_id: id}, function(err, badges) {
     var badge;
