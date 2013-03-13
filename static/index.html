@@ -3,54 +3,160 @@
 <title>Tweep Badger</title>
 <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.css">
 <style>
-body.loading {
-  display: none;
-}
-
-body:not(.logged-in) .logged-in-only {
-  display: none;
-}
-
-body.logged-in .logged-out-only {
+#js-templates,
+body.loading,
+body:not(.logged-in) .logged-in-only,
+body.logged-in .logged-out-only,
+body:not(.making-new-badge) .making-new-badge-only {
   display: none;
 }
 
 img.inline {
   height: 1em;
 }
+
+.js-badge .js-image {
+  width: 90px;
+  display: block;
+}
 </style>
 <body class="loading">
 <div class="container-fluid">
-  <p>This is Tweep Badger.</p>
+  <p>This is <a href="#">Tweep Badger</a>.</p>
   <div class="logged-in-only">
     <p>Currently logged in as <img class="js-user-avatar inline"> 
       <span class="js-user-name"></span>.</p>
-    <button class="js-logout btn">Logout</button>
+    <button class="js-logout btn btn-mini">Logout</button>
   </div>
-  <button class="js-login btn btn-primary logged-out-only">Login</button>
+  <button class="js-login btn btn-mini logged-out-only">Login</button>
+  <div id="js-primary-badge"></div>
+  <button class="js-login logged-out-only making-new-badge-only btn btn-primary">Log in
+    to issue this badge</button>
+  <button class="js-issue logged-in-only making-new-badge-only btn btn-primary">Issue 
+    this badge</button>
+</div>
+<div id="js-templates">
+  <div class="js-badge">
+    <h2 class="js-title"></h2>
+    <p>From <img class="js-sender-avatar inline"> 
+      <span class="js-sender"></span></p>
+    <p>To <img class="js-recipient-avatar inline"> 
+      <span class="js-recipient"></span></p>
+    <img class="js-image">
+    <div class="js-description"></div>
+  </div>
 </div>
 <script src="/js/require-config.js"></script>
 <script src="/vendor/require.js"></script>
 <script>
-require(["jquery", "auth"], function($, Auth) {
-  var BASE_AVATAR_URL = "http://twitter.com/api/users/profile_image/"
+function makeEditable(element, isEditable, badge, field) {
+  var onClick = function(e) {
+    if (!isEditable()) return;
+
+    var self = $(this);
+    var input = $('<input type="text">').val(badge.get(field));
+    var cancel = function() {
+      input.replaceWith(self);
+      self.click(onClick);
+    };
+
+    self.replaceWith(input);
+    input.focus().select().on("keyup", function(e) {
+      if (e.keyCode == 27) {
+        cancel();
+      } else if (e.keyCode == 13) {
+        badge.set(field, input.val());
+        if (badge.id) badge.save();
+      }
+    }).on("blur", cancel);
+  };
+
+  element.text(badge.get(field)).click(onClick);
+}
+
+require(["jquery", "backbone", "auth"], function($, Backbone, Auth) {
+  var DEFAULT_BADGE = {
+    title: "Your New Badge",
+    sender: "",
+    recipient: "MariMoreshead",
+    image_url: "http://beta.openbadges.org/_demo/cc.large.png",
+    description: "Your description goes here."
+  };
+  var BASE_AVATAR_URL = "http://twitter.com/api/users/profile_image/";
+  var avatar = function(name) { return BASE_AVATAR_URL + name; };
+  var Badge = Backbone.Model.extend({urlRoot: "/badge"});
+  var authReady = $.Deferred();
+  var badgeReady = $.Deferred();
+
+  $.when(authReady, badgeReady).done(function() {
+    $(document.body).removeClass("loading");
+  });
 
   $(window).ready(function() {
     var auth = new Auth();
+    var badge = new Badge();
+    var showBadge = function() {
+      var e = $("#js-templates .js-badge").clone();
+      var isEditable = function() {
+        var currUser = auth.get("screenName");
+        return (!badge.id || (currUser && currUser == badge.get("sender")));
+      };
+
+      makeEditable($(".js-title", e), isEditable, badge, "title");
+      makeEditable($(".js-description", e), isEditable, badge, "description");
+      makeEditable($(".js-recipient", e), isEditable, badge, "recipient");
+
+      $(".js-sender", e).text(badge.get("sender"));
+      $(".js-image", e).attr("src", badge.get("image_url"));
+      $("#js-primary-badge").empty().append(e);
+      $(".js-sender-avatar").attr("src",
+        badge.get("sender") ? avatar(badge.get("sender")) : "");
+      $(".js-recipient-avatar").attr("src", avatar(badge.get("recipient")));
+    };
 
     auth.fetch();
     auth.on("change", function() {
-      $(document.body).removeClass("loading")
-        .toggleClass("logged-in", !!this.attributes.screenName);
+      $(document.body).toggleClass("logged-in", !!this.attributes.screenName);
       if (this.attributes.screenName) {
         $("img.js-user-avatar")
-          .attr("src", BASE_AVATAR_URL + this.get('screenName'));
+          .attr("src", avatar(this.get('screenName')));
         $(".js-user-name").text(this.get('screenName'));
       }
+      authReady.resolve();
     });
+    auth.on("change", function() {
+      if (!badge.id)
+        badge.set("sender", auth.get("screenName") || "");
+    });
+    badge.on("change", function() {
+      if (badge.id) window.location.hash = "#" + badge.id;
+    });
+    badge.on("change", showBadge);
 
     $(".js-login").click(auth.login.bind(auth));
     $(".js-logout").click(auth.logout.bind(auth));
+    $(".js-issue").click(function() {
+      badge.save();
+    });
+
+    $(window).on("hashchange", function() {
+      var id = window.location.hash.slice(1);
+
+      $(document.body).toggleClass("making-new-badge", !id);
+
+      if (id) {
+        if (badge.id != id) {
+          badge.id = id;
+          badge.fetch();
+        }
+      } else {
+        delete badge.id;
+        var newBadge = JSON.parse(JSON.stringify(DEFAULT_BADGE));
+        newBadge.sender = auth.get("screenName") || "";
+        badge.set(newBadge);
+      }
+      badgeReady.resolve();
+    }).trigger("hashchange");
   });
 });
 </script>
