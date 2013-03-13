@@ -48,20 +48,19 @@ exports.show = function(req, res, next) {
 };
 
 exports.change = [ensureLoggedIn, ensureBadgeOwner, function(req, res, next) {
-    req.badge.recipient = req.body.recipient;
-    req.badge.title = req.body.title;
-    req.badge.description = req.body.description;
-    req.badge.image_url = req.body.image_url;
+  req.badge.recipient = req.body.recipient;
+  req.badge.title = req.body.title;
+  req.badge.description = req.body.description;
+  req.badge.image_url = req.body.image_url;
 
-    req.badge.save(function(err) {
-      if (err) {
-        if (err.errors) return res.send(400);
-        return next(err);
-      }
-      return res.send(204);    
-    });
-  }
-];
+  req.badge.save(function(err) {
+    if (err) {
+      if (err.errors) return res.send(400);
+      return next(err);
+    }
+    return res.send(204);    
+  });
+}];
 
 exports.getById = function(req, res, next, id) {
   Badge.find({_id: id}, function(err, badges) {
