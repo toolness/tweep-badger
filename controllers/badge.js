@@ -25,8 +25,21 @@ exports.create = function(req, res, next) {
   });
 };
 
-exports.getById = function(req, res, next) {
-  Badge.find({_id: req.params.id}, function(err, badges) {
+exports.show = function(req, res, next) {
+  var badge = req.badge;
+  res.send({
+    id: badge._id,
+    sender: badge.sender,
+    recipient: badge.recipient,
+    title: badge.title,
+    description: badge.description,
+    image_url: badge.image_url,
+    issue_date: badge.issue_date.getTime()
+  });
+};
+
+exports.getById = function(req, res, next, id) {
+  Badge.find({_id: id}, function(err, badges) {
     var badge;
     if (err) {
       if (err.name == 'CastError' && err.type == 'ObjectId' &&
@@ -35,15 +48,7 @@ exports.getById = function(req, res, next) {
       return next(err);
     }
     if (!badges.length) return res.send(404);
-    badge = badges[0];
-    res.send({
-      id: badge._id,
-      sender: badge.sender,
-      recipient: badge.recipient,
-      title: badge.title,
-      description: badge.description,
-      image_url: badge.image_url,
-      issue_date: badge.issue_date.getTime()
-    });
+    req.badge = badges[0];
+    next();
   });
 };

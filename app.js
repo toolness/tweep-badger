@@ -16,6 +16,8 @@ var createApp = module.exports = function createApp(options) {
     callbackUrl: url.resolve(options.baseUrl, '/auth/callback')
   });
 
+  app.param('badgeId', badge.getById);
+
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(options.sessionMiddleware ||
@@ -27,7 +29,7 @@ var createApp = module.exports = function createApp(options) {
   app.get('/auth/callback', auth.callback);
   app.get('/auth/info', auth.info);
   app.post('/badge', badge.create);
-  app.get('/badge/:id', badge.getById);
+  app.get('/badge/:badgeId', badge.show);
   app.use(function(err, req, res, next) {
     if (err.status)
       return res.send(err.status);
