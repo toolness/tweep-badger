@@ -30,6 +30,7 @@ var createApp = module.exports = function createApp(options) {
   app.get('/auth/info', auth.info);
   app.post('/badge', badge.create);
   app.get('/badge/:badgeId', badge.show);
+  app.put('/badge/:badgeId', badge.change);
   app.use(function(err, req, res, next) {
     if (err.status)
       return res.send(err.status);

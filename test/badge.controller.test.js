@@ -110,6 +110,79 @@ testing.dbTest("/badge", function(t) {
       });
     });
 
+    t.test("PUT /badge/:id fails when required fields missing", function(t) {
+      login('hi');
+      a.request.put(a.url(badgeUrl), {
+        json: {
+          _csrf: fakeSession._csrf,
+          title: "oof"
+        }
+      }, function(err, response) {
+        if (err) throw err;
+        t.equal(response.statusCode, 400);
+        t.end();
+      });
+    });
+
+    t.test("PUT /badge/:id fails when not logged in", function(t) {
+      logout();
+      a.request.put(a.url(badgeUrl), {
+        json: {
+          _csrf: fakeSession._csrf
+        }
+      }, function(err, response) {
+        if (err) throw err;
+        t.equal(response.statusCode, 403);
+        t.end();
+      });
+    });
+
+    t.test("PUT /badge/:id fails when not owner", function(t) {
+      login("blarg");
+      a.request.put(a.url(badgeUrl), {
+        json: {
+          _csrf: fakeSession._csrf
+        }
+      }, function(err, response) {
+        if (err) throw err;
+        t.equal(response.statusCode, 403);
+        t.equal(response.body, "not sender of badge");
+        t.end();
+      });
+    });
+
+    t.test("PUT /badge/:id works", function(t) {
+      login('hi');
+      a.request.put(a.url(badgeUrl), {
+        json: {
+          _csrf: fakeSession._csrf,
+          recipient: "bleg",
+          title: "oof",
+          description: 'nifty',
+          image_url: 'http://lol/blah.png'
+        }
+      }, function(err, response) {
+        if (err) throw err;
+        t.equal(response.statusCode, 204);
+        t.end();
+      });
+    });
+
+    t.test("GET /badge/:id after PUT works", function(t) {
+      logout();
+      a.request(a.url(badgeUrl), function(err, response, body) {
+        if (err) throw err;
+        t.equal(response.statusCode, 200);
+        body = JSON.parse(body);
+        t.equal(body.sender, 'hi');
+        t.equal(body.recipient, 'bleg');
+        t.equal(body.title, 'oof');
+        t.equal(body.description, 'nifty');
+        t.equal(body.image_url, 'http://lol/blah.png');
+        t.end();
+      });
+    });
+
     t.end();
   });
 });
