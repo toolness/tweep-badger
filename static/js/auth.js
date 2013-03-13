@@ -16,7 +16,8 @@ define(["jquery", "backbone"], function($, Backbone) {
     },
     logout: function() { $.post("/auth/logout", this.fetch.bind(this)); },
     _addCsrfHeaderToRequest: function(event, xhr, settings) {
-      if (settings.type == "POST" && !settings.crossDomain)
+      if ((["POST", "PUT", "DELETE"].indexOf(settings.type) != -1) &&
+          !settings.crossDomain)
         xhr.setRequestHeader('X-CSRF-Token', this.get('_csrf'));
     },
   });
