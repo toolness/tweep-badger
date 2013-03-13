@@ -29,7 +29,7 @@ exports.create = [ensureLoggedIn, function(req, res, next) {
     }
     return res.send({
       id: badge._id,
-      url: req.path + '/' + badge._id
+      issue_date: badge.issue_date.getTime()
     }, 201);
   });
 }];

@@ -59,8 +59,8 @@ testing.dbTest("/badge", function(t) {
         if (err) throw err;
         t.equal(response.statusCode, 201);
         t.equal(typeof(body.id), "string");
-        t.ok(body.url && body.url.match(/\/badge\/.+$/));
-        badgeUrl = body.url;
+        t.ok(typeof(body.issue_date), "number");
+        badgeUrl = "/badge/" + body.id;
         badgeId = body.id;
         t.end();
       });
