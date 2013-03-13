@@ -1,5 +1,5 @@
 require([
-  "jquery",
+  "jquery-bootstrap",
   "auth",
   "utils",
   "badge",
@@ -50,7 +50,15 @@ require([
 
     $(".js-login").click(auth.login.bind(auth));
     $(".js-logout").click(auth.logout.bind(auth));
-    $(".js-issue").click(function() { badge.save(); });
+    $(".js-issue").click(function() {
+      badge.save({}, {
+        success: function() {
+          var alert = $("#js-templates .js-badge-issued").clone();
+          $(".js-badge-link", alert).attr("href", "/#" + badge.id);
+          alert.appendTo("#js-alerts").hide().slideDown();
+        }
+      });
+    });
 
     $(window).on("hashchange", function() {
       var id = window.location.hash.slice(1);
