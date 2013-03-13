@@ -12,7 +12,7 @@ body:not(.making-new-badge) .making-new-badge-only {
 }
 
 img.inline {
-  height: 1em;
+  height: 1.5em;
 }
 
 .js-badge .js-image {
@@ -21,14 +21,25 @@ img.inline {
 }
 </style>
 <body class="loading">
-<div class="container-fluid">
-  <p>This is <a href="#">Tweep Badger</a>.</p>
-  <div class="logged-in-only">
-    <p>Currently logged in as <img class="js-user-avatar inline"> 
-      <span class="js-user-name"></span>.</p>
-    <button class="js-logout btn btn-mini">Logout</button>
+<div class="navbar navbar-inverse navbar-static-top">
+  <div class="navbar-inner">
+    <a class="brand" href="#">Tweep Badger</a>
+    <ul class="nav pull-right">
+      <li class="logged-in-only">
+        <img class="js-user-avatar inline"> 
+        <span class="js-user-name navbar-text"></span>
+      </li>
+      <li class="divider-vertical"></li>
+      <li class="logged-in-only">
+        <button class="js-logout btn">Logout</button>
+      </li>
+      <li class="logged-out-only">
+        <button class="js-login btn">Login</button>
+      </li>
+    </ul>
   </div>
-  <button class="js-login btn btn-mini logged-out-only">Login</button>
+</div>
+<div class="container-fluid">
   <div id="js-primary-badge"></div>
   <button class="js-login logged-out-only making-new-badge-only btn btn-primary">Log in
     to issue this badge</button>
