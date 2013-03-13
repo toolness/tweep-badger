@@ -1,9 +1,18 @@
 var Badge = require('../models/badge').Badge;
 
-exports.create = function(req, res, next) {
+function ensureLoggedIn(req, res, next) {
   if (!req.session.screenName)
-    return res.send(403);
+    return res.send("not logged in", 403);
+  next();
+}
 
+function ensureBadgeOwner(req, res, next) {
+  if (req.session.screenName != req.badge.sender)
+    return res.send("not sender of badge", 403);
+  next();
+}
+
+exports.create = [ensureLoggedIn, function(req, res, next) {
   if (!req.body)
     return res.send(400);
 
@@ -23,7 +32,7 @@ exports.create = function(req, res, next) {
       url: req.path + '/' + badge._id
     }, 201);
   });
-};
+}];
 
 exports.show = function(req, res, next) {
   var badge = req.badge;
@@ -38,25 +47,21 @@ exports.show = function(req, res, next) {
   });
 };
 
-exports.change = function(req, res, next) {
-  if (!req.session.screenName)
-    return res.send(403);
+exports.change = [ensureLoggedIn, ensureBadgeOwner, function(req, res, next) {
+    req.badge.recipient = req.body.recipient;
+    req.badge.title = req.body.title;
+    req.badge.description = req.body.description;
+    req.badge.image_url = req.body.image_url;
 
-  if (req.session.screenName != req.badge.sender)
-    return res.send("not sender of badge", 403);
-
-  req.badge.recipient = req.body.recipient;
-  req.badge.title = req.body.title;
-  req.badge.description = req.body.description;
-  req.badge.image_url = req.body.image_url;
-  req.badge.save(function(err) {
-    if (err) {
-      if (err.errors) return res.send(400);
-      return next(err);
-    }
-    return res.send(204);    
-  });
-};
+    req.badge.save(function(err) {
+      if (err) {
+        if (err.errors) return res.send(400);
+        return next(err);
+      }
+      return res.send(204);    
+    });
+  }
+];
 
 exports.getById = function(req, res, next, id) {
   Badge.find({_id: id}, function(err, badges) {
