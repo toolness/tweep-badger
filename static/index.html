@@ -49,6 +49,9 @@ img.inline {
 <script src="/js/require-config.js"></script>
 <script src="/vendor/require.js"></script>
 <script>
+var BASE_AVATAR_URL = "http://twitter.com/api/users/profile_image/";
+var avatar = function(name) { return BASE_AVATAR_URL + name; };
+
 function makeEditable(element, isEditable, badge, field) {
   var onClick = function(e) {
     if (!isEditable()) return;
@@ -74,6 +77,36 @@ function makeEditable(element, isEditable, badge, field) {
   element.text(badge.get(field)).click(onClick);
 }
 
+function BadgeView(options) {
+  var self = {};
+  var auth = options.auth;
+  var badge = options.badge;
+  var template = options.template;
+  var target = options.target;
+
+  var isEditable = function() {
+    var currUser = auth.get("screenName");
+    return (!badge.id || (currUser && currUser == badge.get("sender")));
+  };
+
+  self.showBadge = function() {
+    var e = template.clone();
+
+    makeEditable($(".js-title", e), isEditable, badge, "title");
+    makeEditable($(".js-description", e), isEditable, badge, "description");
+    makeEditable($(".js-recipient", e), isEditable, badge, "recipient");
+
+    $(".js-sender", e).text(badge.get("sender"));
+    $(".js-image", e).attr("src", badge.get("image_url"));
+    $(".js-sender-avatar", e).attr("src",
+      badge.get("sender") ? avatar(badge.get("sender")) : "");
+    $(".js-recipient-avatar", e).attr("src", avatar(badge.get("recipient")));
+    target.empty().append(e);
+  };
+
+  return self;
+}
+
 require(["jquery", "backbone", "auth"], function($, Backbone, Auth) {
   var DEFAULT_BADGE = {
     title: "Your New Badge",
@@ -82,8 +115,6 @@ require(["jquery", "backbone", "auth"], function($, Backbone, Auth) {
     image_url: "http://beta.openbadges.org/_demo/cc.large.png",
     description: "Your description goes here."
   };
-  var BASE_AVATAR_URL = "http://twitter.com/api/users/profile_image/";
-  var avatar = function(name) { return BASE_AVATAR_URL + name; };
   var Badge = Backbone.Model.extend({urlRoot: "/badge"});
   var authReady = $.Deferred();
   var badgeReady = $.Deferred();
@@ -95,24 +126,12 @@ require(["jquery", "backbone", "auth"], function($, Backbone, Auth) {
   $(window).ready(function() {
     var auth = new Auth();
     var badge = new Badge();
-    var showBadge = function() {
-      var e = $("#js-templates .js-badge").clone();
-      var isEditable = function() {
-        var currUser = auth.get("screenName");
-        return (!badge.id || (currUser && currUser == badge.get("sender")));
-      };
-
-      makeEditable($(".js-title", e), isEditable, badge, "title");
-      makeEditable($(".js-description", e), isEditable, badge, "description");
-      makeEditable($(".js-recipient", e), isEditable, badge, "recipient");
-
-      $(".js-sender", e).text(badge.get("sender"));
-      $(".js-image", e).attr("src", badge.get("image_url"));
-      $("#js-primary-badge").empty().append(e);
-      $(".js-sender-avatar").attr("src",
-        badge.get("sender") ? avatar(badge.get("sender")) : "");
-      $(".js-recipient-avatar").attr("src", avatar(badge.get("recipient")));
-    };
+    var badgeView = BadgeView({
+      auth: auth,
+      badge: badge,
+      template: $("#js-templates .js-badge"),
+      target: $("#js-primary-badge")
+    });
 
     auth.fetch();
     auth.on("change", function() {
@@ -131,13 +150,11 @@ require(["jquery", "backbone", "auth"], function($, Backbone, Auth) {
     badge.on("change", function() {
       if (badge.id) window.location.hash = "#" + badge.id;
     });
-    badge.on("change", showBadge);
+    badge.on("change", badgeView.showBadge);
 
     $(".js-login").click(auth.login.bind(auth));
     $(".js-logout").click(auth.logout.bind(auth));
-    $(".js-issue").click(function() {
-      badge.save();
-    });
+    $(".js-issue").click(function() { badge.save(); });
 
     $(window).on("hashchange", function() {
       var id = window.location.hash.slice(1);
