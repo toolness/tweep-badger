@@ -82,6 +82,16 @@ require([
       });
     });
 
+    // http://dev.tenfarms.com/posts/proper-link-handling
+    $(document).on("click", "a[href^='/']", function(event) {
+      if (!event.altKey && !event.ctrlKey && !event.metaKey &&
+          !event.shiftKey) {
+        event.preventDefault();
+        var url = $(event.currentTarget).attr("href").replace(/^\//, "");
+        router.navigate(url, {trigger: true});
+      }
+    });
+
     Backbone.history.start({pushState: true});
   });
 });
