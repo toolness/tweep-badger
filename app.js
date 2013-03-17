@@ -1,4 +1,5 @@
 var url = require('url');
+var fs = require('fs');
 var express = require('express');
 var mongoose = require('mongoose');
 
@@ -32,6 +33,15 @@ var createApp = module.exports = function createApp(options) {
   app.get('/badge/:badgeId', badge.show);
   app.put('/badge/:badgeId', badge.change);
   app.delete('/badge/:badgeId', badge.remove);
+  app.get('/b/:badgeId', function(req, res, next) {
+    fs.readFile(__dirname + '/static/index.html', {
+      encoding: 'utf8'
+    }, function(err, data) {
+      if (err) return next(err);
+      res.type('text/html; charset=utf-8');
+      res.send(data);
+    });
+  });
   app.use(function(err, req, res, next) {
     if (err.status)
       return res.send(err.status);
