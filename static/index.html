@@ -4,7 +4,6 @@
 <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.css">
 <style>
 #js-templates,
-body.loading,
 body:not(.logged-in) .logged-in-only,
 body.logged-in .logged-out-only,
 body:not(.making-new-badge) .making-new-badge-only {
@@ -33,7 +32,8 @@ img.inline {
   padding: 1em 0;
 }
 </style>
-<body class="loading">
+<script>var INITIAL_DATA = {};</script>
+<body>
 <div class="navbar navbar-inverse navbar-static-top">
   <div class="navbar-inner">
     <a class="brand" href="/">Tweep Badger</a>

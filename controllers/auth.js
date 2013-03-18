@@ -54,7 +54,7 @@ exports.Auth = function Auth(options) {
     );
   };
 
-  self.info = function(req, res, next) {
+  self.infoAsJSON = function(req) {
     var info = {screenName: null, userId: null, _csrf: req.session._csrf};
 
     if (req.session.screenName) {
@@ -62,7 +62,11 @@ exports.Auth = function Auth(options) {
       info.userId = req.session.userId;
     }
 
-    return res.send(info);
+    return info;
+  };
+
+  self.info = function(req, res, next) {
+    return res.send(self.infoAsJSON(req));
   };
 
   return self;

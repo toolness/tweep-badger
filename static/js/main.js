@@ -14,12 +14,6 @@ require([
     description: "Your description goes here."
   };
 
-  var authReady = $.Deferred();
-
-  authReady.done(function() {
-    $(document.body).removeClass("loading");
-  });
-
   $(window).ready(function() {
     var Router = Backbone.Router.extend({
       routes: {
@@ -51,7 +45,6 @@ require([
       target: $("#js-primary-badge")
     });
 
-    auth.fetch();
     auth.on("change", function() {
       $(document.body).toggleClass("logged-in", !!this.attributes.screenName);
       if (this.attributes.screenName) {
@@ -59,7 +52,6 @@ require([
           .attr("src", utils.avatar(this.get('screenName')));
         $(".js-user-name").text(this.get('screenName'));
       }
-      authReady.resolve();
     });
     auth.on("change", function() {
       if (!badge.id)
@@ -91,6 +83,9 @@ require([
         router.navigate(url, {trigger: true});
       }
     });
+
+    auth.set(window.INITIAL_DATA.auth);
+    badge.set(window.INITIAL_DATA.badge || {});
 
     Backbone.history.start({pushState: true});
   });

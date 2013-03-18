@@ -1,11 +1,13 @@
+const STATIC_DIR = __dirname + '/static';
+
 var url = require('url');
-var fs = require('fs');
 var express = require('express');
 var mongoose = require('mongoose');
 
 var env = require('./env');
 var Auth = require('./controllers/auth').Auth;
 var badge = require('./controllers/badge');
+var page = require('./controllers/page');
 
 var createApp = module.exports = function createApp(options) {
   var app = express();
@@ -19,12 +21,12 @@ var createApp = module.exports = function createApp(options) {
 
   app.param('badgeId', badge.getById);
 
+  app.use(express.logger());
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(options.sessionMiddleware ||
           express.cookieSession({secret: options.cookieSecret}));
   app.use(express.csrf());
-  app.use(express.static(__dirname + '/static'));
   app.post('/auth/logout', auth.logout);
   app.get('/auth/login', auth.login);
   app.get('/auth/callback', auth.callback);
@@ -33,15 +35,14 @@ var createApp = module.exports = function createApp(options) {
   app.get('/badge/:badgeId', badge.show);
   app.put('/badge/:badgeId', badge.change);
   app.delete('/badge/:badgeId', badge.remove);
-  app.get('/b/:badgeId', function(req, res, next) {
-    fs.readFile(__dirname + '/static/index.html', {
-      encoding: 'utf8'
-    }, function(err, data) {
-      if (err) return next(err);
-      res.type('text/html; charset=utf-8');
-      res.send(data);
-    });
-  });
+  app.get('/', page.bootstrapped({
+    auth: auth.infoAsJSON.bind(auth),
+  }, STATIC_DIR + '/index.html'));
+  app.get('/b/:badgeId', page.bootstrapped({
+    auth: auth.infoAsJSON.bind(auth),
+    badge: badge.showAsJSON.bind(badge)
+  }, STATIC_DIR + '/index.html'));
+  app.use(express.static(STATIC_DIR));
   app.use(function(err, req, res, next) {
     if (err.status)
       return res.send(err.status);

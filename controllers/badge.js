@@ -34,9 +34,9 @@ exports.create = [ensureLoggedIn, function(req, res, next) {
   });
 }];
 
-exports.show = function(req, res, next) {
+exports.showAsJSON = function(req) {
   var badge = req.badge;
-  res.send({
+  return {
     id: badge._id,
     sender: badge.sender,
     recipient: badge.recipient,
@@ -44,7 +44,11 @@ exports.show = function(req, res, next) {
     description: badge.description,
     image_url: badge.image_url,
     issue_date: badge.issue_date.getTime()
-  });
+  };
+};
+
+exports.show = function(req, res, next) {
+  res.send(exports.showAsJSON(req));
 };
 
 exports.change = [ensureLoggedIn, ensureBadgeOwner, function(req, res, next) {
