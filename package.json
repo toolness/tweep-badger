@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/tap test/*.test.js",
-    "postinstall" : "if [ \"$NODE_ENV\" == \"production\" ]; then make optimize; fi"
+    "postinstall" : "test \"$NODE_ENV\" == \"production\" && make optimize || exit 0"
   },
   "repository": "",
   "author": "Atul Varma <varmaa@gmail.com>",
