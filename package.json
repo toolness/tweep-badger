@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/tap test/*.test.js",
-    "postinstall" : "test \"$NODE_ENV\" = \"production\" && make optimize || exit 0"
+    "postinstall" : "test \"$NODE_ENV\" != \"production\" && exit 0 || make optimize"
   },
   "repository": "",
   "author": "Atul Varma <varmaa@gmail.com>",
