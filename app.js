@@ -1,6 +1,7 @@
 const STATIC_DIR = __dirname + '/static';
 
 var url = require('url');
+var fs = require('fs');
 var express = require('express');
 var mongoose = require('mongoose');
 
@@ -43,6 +44,14 @@ var createApp = module.exports = function createApp(options) {
     badge: badge.showAsJSON.bind(badge)
   }, STATIC_DIR + '/index.html'));
   app.use(express.static(STATIC_DIR));
+  app.use(function(req, res, next) {
+    if (req.url == '/js/main-built.js') {
+      res.type('application/javascript');
+      res.send(fs.readFileSync(STATIC_DIR + '/js/require-config.js', 'utf8') +
+               '\n\nrequire(["main"], function() {});\n');
+    } else
+      next();
+  });
   app.use(function(err, req, res, next) {
     if (err.status)
       return res.send(err.status);

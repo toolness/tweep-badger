@@ -6,14 +6,16 @@
   "dependencies": {
     "express": "~3.1.0",
     "oauth": "~0.9.10",
-    "mongoose": "3.5.7"
+    "mongoose": "3.5.7",
+    "requirejs": "2.1.5"
   },
   "devDependencies": {
     "tap": "0.4.0",
     "request": "2.14.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/tap test/*.test.js"
+    "test": "./node_modules/.bin/tap test/*.test.js",
+    "postinstall" : "if [ \"$NODE_ENV\" == \"production\" ]; then ./node_modules/.bin/r.js -o mainConfigFile=static/js/require-config.js baseUrl=static/js name=main out=static/js/main-built.js; fi"
   },
   "repository": "",
   "author": "Atul Varma <varmaa@gmail.com>",
