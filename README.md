@@ -9,10 +9,20 @@ from one Twitter user to another.
 
 You'll need node and mongoDB.
 
+You'll also need a pair of Twitter app tokens, which can be obtained from
+[dev.twitter.com/apps](https://dev.twitter.com/apps).
+
 ## Quick Start
 
-1. Run `npm install`.
-2. Run `npm test`.
-3. Run `cp .env.sample .env`.
-4. Edit `.env` to taste.
-5. Run `node app.js`, then browse to http://localhost:3000/.
+1. Make sure your mongoDB server is running.
+2. Run `npm install`.
+3. Run `npm test`.
+4. Run `cp .env.example .env`.
+5. Edit `.env` to taste.
+6. Run `node app.js`, then browse to http://localhost:3000/.
+
+## Deployment
+
+For production deployments, you'll want to run `make optimize`, which
+minifies/compresses necessary files. If you want to revert from
+production to development, make sure you run `make clean` first.
