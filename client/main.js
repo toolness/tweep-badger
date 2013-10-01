@@ -1,22 +1,40 @@
+var newBadges = new Meteor.Collection(null);
+
+newBadges.insert({
+  size: 480,
+  background: "#FFAAAA"
+});
+
+Template.newBadgeStudio.helpers({
+  newBadges: newBadges.find()
+});
+
 Template.badgeStudio.events({
   'change #background': function(e, t) {
-    renderBadge(t);
+    newBadges.update({_id: t.data._id}, {
+      $set: {background: '#' + e.target.value}
+    });
   }
 });
 
 Template.badgeStudio.rendered = function() {
-  if (!this._canvas) {
-    renderBadge(this);
+  if (!this._badge) {
+    var holder = this.find('#canvasHolder');
+    this._badge = new BadgeRendering(holder, function() {
+      return newBadges.findOne({_id: this.data._id});
+    }.bind(this));
     this._bgpicker = new jscolor.color(this.find('#background'), {});
   }
 };
 
-var renderBadge = function(template) {
-  var holder = template.find('#canvasHolder');
-  $(holder).empty();
-  template._canvas = Chibadge.build({
-    size: 480,
-    background: '#' + template.find('#background').value
+var BadgeRendering = function(holder, getOptions) {
+  var self = {canvas: null};
+
+  Deps.autorun(function() {
+    self.canvas = Chibadge.build(getOptions());
+    $(holder).empty();
+    holder.appendChild(self.canvas);
   });
-  holder.appendChild(template._canvas);
+
+  return self;
 };

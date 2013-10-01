@@ -3,12 +3,18 @@
 </head>
 <body>
   <h1>Tweep Badger 2</h1>
-  {{> badgeStudio}}
+  {{> newBadgeStudio}}
 </body>
+
+<template name="newBadgeStudio">
+  {{#each newBadges}}
+    {{> badgeStudio}}
+  {{/each}}
+</template>
 
 <template name="badgeStudio">
   <div>
-    background: <input type="text" id="background" value="FFAAAA">
+    background: <input type="text" id="background" value="{{background}}">
   </div>
   {{#constant}}<div id="canvasHolder"></div>{{/constant}}
 </template>
