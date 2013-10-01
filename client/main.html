@@ -1,0 +1,14 @@
+<head>
+  <title>Tweep Badger 2</title>
+</head>
+<body>
+  <h1>Tweep Badger 2</h1>
+  {{> badgeStudio}}
+</body>
+
+<template name="badgeStudio">
+  <div>
+    background: <input type="text" id="background" value="FFAAAA">
+  </div>
+  {{#constant}}<div id="canvasHolder"></div>{{/constant}}
+</template>
