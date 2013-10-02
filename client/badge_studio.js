@@ -11,7 +11,9 @@ Template.badgeStudio.events({
   },
   'change input[name=recipients]': function(e, t) {
     var recipients = e.target.value.split(' ').map(function(name) {
-      return name.trim();
+      name = name.trim();
+      if (name[0] == '@') name = name.slice(1);
+      return name;
     }).filter(isValidTwitterName);
     t._updateBadge({recipients: recipients});
   }
