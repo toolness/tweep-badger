@@ -8,13 +8,15 @@
 
 <template name="newBadgeStudio">
   {{#each newBadges}}
-    {{> badgeStudio}}
+    {{> badgeStudio newBadge}}
   {{/each}}
 </template>
 
 <template name="badgeStudio">
+  {{#with badge}}
   <div id="badgeStudio_{{_id}}">
     background: <input type="text" name="background" value="{{background}}" data-jscolor>
   </div>
   {{#constant}}<div class="canvasHolder"></div>{{/constant}}
+  {{/with}}
 </template>

@@ -5,22 +5,35 @@ newBadges.insert({
 });
 
 Template.newBadgeStudio.helpers({
-  newBadges: newBadges.find()
+  newBadges: newBadges.find(),
+  newBadge: function() {
+    return {collection: newBadges, badge: this};
+  }
 });
 
 Template.badgeStudio.events({
   'change input[name=background]': function(e, t) {
-    newBadges.update({_id: t.data._id}, {
-      $set: {background: '#' + e.target.value}
-    });
+    t._updateBadge({background: '#' + e.target.value});
   }
 });
+
+Template.badgeStudio.created = function() {
+  var collection = this.data.collection;
+  var badge = this.data.badge;
+
+  this._getBadge = function() {
+    return collection.findOne({_id: badge._id});
+  };
+  this._updateBadge = function(updates) {
+    collection.update({_id: badge._id}, {$set: updates});
+  };
+};
 
 Template.badgeStudio.rendered = function() {
   if (!this._badgeCanvas) {
     Deps.autorun(function renderBadge() {
       var holder = this.find('.canvasHolder');
-      var options = newBadges.findOne({_id: this.data._id});
+      var options = this._getBadge();
       this._badgeCanvas = Chibadge.build($.extend(options, {
         size: 480
       }));
