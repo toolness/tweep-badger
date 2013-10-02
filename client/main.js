@@ -1,7 +1,6 @@
 var newBadges = new Meteor.Collection(null);
 
 newBadges.insert({
-  size: 480,
   background: "#FFAAAA"
 });
 
@@ -22,7 +21,9 @@ Template.badgeStudio.rendered = function() {
     Deps.autorun(function renderBadge() {
       var holder = this.find('.canvasHolder');
       var options = newBadges.findOne({_id: this.data._id});
-      this._badgeCanvas = Chibadge.build(options);
+      this._badgeCanvas = Chibadge.build($.extend(options, {
+        size: 480
+      }));
       $(holder).empty();
       holder.appendChild(this._badgeCanvas);
     }.bind(this));
