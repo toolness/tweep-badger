@@ -1,13 +1,10 @@
-var newBadges = new Meteor.Collection(null);
+newBadges = new Meteor.Collection(null);
 
-newBadges.insert({
-  background: "#FFAAAA"
-});
+newBadges.insert({background: "#FFAAAA"});
 
 Template.newBadgeStudio.helpers({
-  newBadges: newBadges.find(),
   newBadge: function() {
-    return {collection: newBadges, badge: this};
+    return {collection: newBadges, badge: newBadges.findOne()};
   }
 });
 
