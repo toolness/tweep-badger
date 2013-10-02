@@ -16,6 +16,9 @@ Template.badgeStudio.events({
       return name;
     }).filter(isValidTwitterName);
     t._updateBadge({recipients: recipients});
+  },
+  'change textarea[name=description]': function(e, t) {
+    t._updateBadge({description: e.target.value});
   }
 });
 

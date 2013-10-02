@@ -3,6 +3,7 @@ var newBadges = new Meteor.Collection(null);
 var DEFAULT_BADGE = {
   name: "",
   recipients: [],
+  description: "",
   background: "FFAAAA"
 };
 

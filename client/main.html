@@ -27,6 +27,8 @@
     <p>name of badge: <input type="text" name="name" value="{{name}}"></p>
     <p>recipients (twitter usernames, separated by spaces): <input type="text" name="recipients" value="{{spaceSeparatedRecipients}}"></p>
     <p>background: <input type="text" name="background" value="{{background}}" data-jscolor></p>
+    <p>description/criteria/evidence (<a href="http://daringfireball.net/projects/markdown/basics">markdown</a> is supported):</p>
+    <textarea name="description" rows="10" cols="80">{{description}}</textarea>
   </div>
   {{> badgeImage}}
   {{/with}}
@@ -61,6 +63,7 @@
     {{#each recipients}}
       <a href="http://twitter.com/{{this}}">@{{this}}</a>
     {{/each}}
+    <div>{{{sanitizedDescription}}}</div>
   </p>
   {{> badgeImage}}
 </template>
