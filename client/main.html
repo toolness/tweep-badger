@@ -39,17 +39,28 @@
 <template name="allBadges">
   <h2>Issued Badges</h2>
   {{#each badges}}
-    <p>
-      <img src="{{issuerAvatarUrl}}"> 
-      <a href="http://twitter.com/{{issuer}}">@{{issuer}}</a>
-      issued <strong>{{name}}</strong> to
-      {{#each recipients}}
-        <a href="http://twitter.com/{{this}}">@{{this}}</a>
-      {{/each}}
-    </p>
-    {{> badgeImage}}
-    {{#if issuedByCurrentUser}}
-      <button name="revoke">Revoke</button>
+    {{#if isBeingEdited}}
+      {{> badgeStudio editableBadge}}
+      <button name="commit">Commit changes</button>
+      <button name="cancel">Cancel</button>
+    {{else}}
+      {{> badgeItem}}
+      {{#if issuedByCurrentUser}}
+        <button name="revoke">Revoke</button>
+        <button name="edit">Edit</button>
+      {{/if}}
     {{/if}}
   {{/each}}
+</template>
+
+<template name="badgeItem">
+  <p>
+    <img src="{{issuerAvatarUrl}}"> 
+    <a href="http://twitter.com/{{issuer}}">@{{issuer}}</a>
+    issued <strong>{{name}}</strong> to
+    {{#each recipients}}
+      <a href="http://twitter.com/{{this}}">@{{this}}</a>
+    {{/each}}
+  </p>
+  {{> badgeImage}}
 </template>
