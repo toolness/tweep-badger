@@ -1,3 +1,15 @@
+var BADGE_SIZE = 480;
+
+var renderBadge = function(holder, badge) {
+  var canvas = Chibadge.build({
+    size: BADGE_SIZE,
+    background: '#' + badge.background
+  });
+  $(holder).empty();
+  holder.appendChild(canvas);
+  return canvas;
+};
+
 Template.badgeStudio.events({
   'change input[name=background]': function(e, t) {
     t._updateBadge({background: e.target.value});
@@ -5,32 +17,17 @@ Template.badgeStudio.events({
 });
 
 Template.badgeStudio.created = function() {
-  var collection = this.data.collection;
-  var badge = this.data.badge;
-
-  this._getBadge = function() {
-    return collection.findOne({_id: badge._id});
-  };
   this._updateBadge = function(updates) {
+    var collection = this.data.collection;
+    var badge = this.data.badge;
+
     collection.update({_id: badge._id}, {$set: updates});
   };
 };
 
 Template.badgeStudio.rendered = function() {
-  if (!this._badgeCanvas) {
-    Deps.autorun(function renderBadge() {
-      var holder = this.find('.canvasHolder');
-      var options = this._getBadge();
-      this._badgeCanvas = Chibadge.build({
-        size: 480,
-        background: '#' + options.background
-      });
-      $(holder).empty();
-      holder.appendChild(this._badgeCanvas);
-    }.bind(this));
-
-    this.findAll('input[data-jscolor]').forEach(function jscolorify(input) {
-      if (!input.color) input.color = new jscolor.color(input, {});
-    });
-  }
+  this._canvas = renderBadge(this.find('.canvasHolder'), this.data.badge);
+  this.findAll('input[data-jscolor]').forEach(function jscolorify(input) {
+    if (!input.color) input.color = new jscolor.color(input, {});
+  });
 };
