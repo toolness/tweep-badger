@@ -1,6 +1,6 @@
 var newBadges = new Meteor.Collection(null);
 
-newBadges.insert({background: "#FFAAAA"});
+newBadges.insert({background: "FFAAAA"});
 
 Template.newBadgeStudio.badges = newBadges;
 Template.newBadgeStudio.helpers({
@@ -11,7 +11,7 @@ Template.newBadgeStudio.helpers({
 
 Template.badgeStudio.events({
   'change input[name=background]': function(e, t) {
-    t._updateBadge({background: '#' + e.target.value});
+    t._updateBadge({background: e.target.value});
   }
 });
 
@@ -32,9 +32,10 @@ Template.badgeStudio.rendered = function() {
     Deps.autorun(function renderBadge() {
       var holder = this.find('.canvasHolder');
       var options = this._getBadge();
-      this._badgeCanvas = Chibadge.build($.extend(options, {
-        size: 480
-      }));
+      this._badgeCanvas = Chibadge.build({
+        size: 480,
+        background: '#' + options.background
+      });
       $(holder).empty();
       holder.appendChild(this._badgeCanvas);
     }.bind(this));
