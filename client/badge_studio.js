@@ -35,5 +35,6 @@ Template.badgeStudio.created = function() {
 Template.badgeStudio.rendered = function() {
   this.findAll('input[data-jscolor]').forEach(function jscolorify(input) {
     if (!input.color) input.color = new jscolor.color(input, {});
+    input.color.importColor();
   });
 };
