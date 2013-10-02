@@ -29,7 +29,7 @@ Template.badgeStudio.rendered = function() {
     }.bind(this));
 
     this.findAll('input[data-jscolor]').forEach(function jscolorify(input) {
-      input.color = jscolor.color(input, {});
+      if (!input.color) input.color = new jscolor.color(input, {});
     });
   }
 };
