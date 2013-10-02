@@ -3,17 +3,30 @@
 </head>
 <body>
   <h1>Tweep Badger</h1>
+  {{loginButtons}}
   {{> newBadgeStudio}}
+  {{> allBadges}}
 </body>
 
 <template name="newBadgeStudio">
-  {{> badgeStudio newBadge}}
+  <h2>Create a new badge</h2>
+  {{#with newBadge}}
+    {{> badgeStudio}}
+
+    {{#if currentUser}}
+      <button id="submitNewBadge">Issue Badge</button>
+    {{else}}
+      Sign in to issue this badge.
+    {{/if}}
+  {{/with}}
 </template>
 
 <template name="badgeStudio">
   {{#with badge}}
   <div id="badgeStudio_{{_id}}">
-    background: <input type="text" name="background" value="{{background}}" data-jscolor>
+    <p>name of badge: <input type="text" name="name" value="{{name}}"></p>
+    <p>recipients (twitter usernames, separated by spaces): <input type="text" name="recipients" value="{{spaceSeparatedRecipients}}"></p>
+    <p>background: <input type="text" name="background" value="{{background}}" data-jscolor></p>
   </div>
   {{> badgeImage}}
   {{/with}}
@@ -21,4 +34,22 @@
 
 <template name="badgeImage">
   {{#constant}}<div class="canvasHolder"></div>{{/constant}}
+</template>
+
+<template name="allBadges">
+  <h2>Issued Badges</h2>
+  {{#each badges}}
+    <p>
+      <img src="{{issuerAvatarUrl}}"> 
+      <a href="http://twitter.com/{{issuer}}">@{{issuer}}</a>
+      issued <strong>{{name}}</strong> to
+      {{#each recipients}}
+        <a href="http://twitter.com/{{this}}">@{{this}}</a>
+      {{/each}}
+    </p>
+    {{> badgeImage}}
+    {{#if issuedByCurrentUser}}
+      <button name="revoke">Revoke</button>
+    {{/if}}
+  {{/each}}
 </template>
