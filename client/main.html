@@ -15,6 +15,10 @@
   <div id="badgeStudio_{{_id}}">
     background: <input type="text" name="background" value="{{background}}" data-jscolor>
   </div>
-  {{#constant}}<div class="canvasHolder"></div>{{/constant}}
+  {{> badgeImage}}
   {{/with}}
+</template>
+
+<template name="badgeImage">
+  {{#constant}}<div class="canvasHolder"></div>{{/constant}}
 </template>
