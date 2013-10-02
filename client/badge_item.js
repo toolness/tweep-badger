@@ -1,7 +1,7 @@
 Template.badgeItem.helpers({
   sanitizedDescription: function() {
     var converter = Markdown.getSanitizingConverter();
-    return converter.makeHtml(this.description);
+    return converter.makeHtml(this.description || '');
   },
   issuerAvatarUrl: function() {
     var issuer = Meteor.users.findOne({
