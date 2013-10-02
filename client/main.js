@@ -10,7 +10,7 @@ Template.newBadgeStudio.helpers({
 });
 
 Template.badgeStudio.events({
-  'change #background': function(e, t) {
+  'change input[name=background]': function(e, t) {
     newBadges.update({_id: t.data._id}, {
       $set: {background: '#' + e.target.value}
     });
@@ -18,23 +18,17 @@ Template.badgeStudio.events({
 });
 
 Template.badgeStudio.rendered = function() {
-  if (!this._badge) {
-    var holder = this.find('#canvasHolder');
-    this._badge = new BadgeRendering(holder, function() {
-      return newBadges.findOne({_id: this.data._id});
+  if (!this._badgeCanvas) {
+    Deps.autorun(function renderBadge() {
+      var holder = this.find('.canvasHolder');
+      var options = newBadges.findOne({_id: this.data._id});
+      this._badgeCanvas = Chibadge.build(options);
+      $(holder).empty();
+      holder.appendChild(this._badgeCanvas);
     }.bind(this));
-    this._bgpicker = new jscolor.color(this.find('#background'), {});
+
+    this.findAll('input[data-jscolor]').forEach(function jscolorify(input) {
+      input.color = jscolor.color(input, {});
+    });
   }
-};
-
-var BadgeRendering = function(holder, getOptions) {
-  var self = {canvas: null};
-
-  Deps.autorun(function() {
-    self.canvas = Chibadge.build(getOptions());
-    $(holder).empty();
-    holder.appendChild(self.canvas);
-  });
-
-  return self;
 };

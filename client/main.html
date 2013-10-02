@@ -13,8 +13,8 @@
 </template>
 
 <template name="badgeStudio">
-  <div>
-    background: <input type="text" id="background" value="{{background}}">
+  <div id="badgeStudio_{{_id}}">
+    background: <input type="text" name="background" value="{{background}}" data-jscolor>
   </div>
-  {{#constant}}<div id="canvasHolder"></div>{{/constant}}
+  {{#constant}}<div class="canvasHolder"></div>{{/constant}}
 </template>
