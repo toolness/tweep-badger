@@ -1,7 +1,3 @@
-var isValidTwitterName = function(name) {
-  return /^([A-Za-z0-9_]+)$/.test(name) && name.length < 16;
-};
-
 Template.badgeStudio.events({
   'change input[name=background]': function(e, t) {
     t._updateBadge({background: e.target.value});
@@ -14,7 +10,7 @@ Template.badgeStudio.events({
       name = name.trim();
       if (name[0] == '@') name = name.slice(1);
       return name;
-    }).filter(isValidTwitterName);
+    }).filter(Badges.isValidTwitterName);
     t._updateBadge({recipients: recipients});
   },
   'change textarea[name=description]': function(e, t) {

@@ -14,8 +14,10 @@ Template.allBadges.events({
   },
   'click button[name=commit]': function(e, t) {
     var updatedBadge = badgesBeingEdited.findOne({_id: this._id});
-    Badges.update({_id: this._id}, updatedBadge);
-    badgesBeingEdited.remove({_id: this._id});
+    Meteor.call('editBadge', updatedBadge, function(err) {
+      if (err) return alert(err.reason);
+      badgesBeingEdited.remove({_id: this._id});
+    }.bind(this));
   }
 });
 
